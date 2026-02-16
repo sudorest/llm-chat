@@ -28,37 +28,32 @@ const MODEL = 'gpt-4o';
 
 function App() {
   const [messages, setMessages] = useState<Message[]>([]);
-  const [inputValue, setInputValue] = useState('');
-  const [isLoading, setIsLoading] = useState(false);
+  const [input, setInput] = useState('');
+  const [loading, setLoading] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
-  const textareaRef = useRef<HTMLTextAreaElement>(null);
-
-  const scrollToBottom = () => {
-    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
-  };
 
   useEffect(() => {
-    scrollToBottom();
+    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages]);
 
-  const generateId = () => Math.random().toString(36).substring(2, 15);
+  const uid = () => Math.random().toString(36).slice(2, 15);
 
-  const sendMessage = async () => {
-    if (!inputValue.trim() || isLoading) return;
+  const send = async () => {
+    if (!input.trim() || loading) return;
 
-    const userMessage: Message = {
-      id: generateId(),
+    const userMsg: Message = {
+      id: uid(),
       role: 'user',
-      content: inputValue.trim(),
+      content: input.trim(),
       timestamp: new Date(),
     };
 
-    setMessages((prev) => [...prev, userMessage]);
-    setInputValue('');
-    setIsLoading(true);
+    setMessages((m) => [...m, userMsg]);
+    setInput('');
+    setLoading(true);
 
     try {
-      const response = await fetch(API_URL, {
+      const res = await fetch(API_URL, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -67,122 +62,89 @@ function App() {
         body: JSON.stringify({
           model: MODEL,
           messages: [
-            ...messages.map((m) => ({
-              role: m.role,
-              content: m.content,
-            })),
-            {
-              role: 'user',
-              content: userMessage.content,
-            },
+            ...messages.map((m) => ({ role: m.role, content: m.content })),
+            { role: 'user', content: userMsg.content },
           ],
           stream: false,
         }),
       });
 
-      if (!response.ok) {
-        const errorText = await response.text();
-        throw new Error(`HTTP ${response.status}: ${errorText || response.statusText}`);
+      if (!res.ok) {
+        const text = await res.text();
+        throw new Error(`HTTP ${res.status}: ${text || res.statusText}`);
       }
 
-      const data = await response.json();
-      const assistantContent = data.choices[0]?.message?.content || 'No response';
+      const data = await res.json();
+      const content = data.choices[0]?.message?.content || 'No response';
 
-      const assistantMessage: Message = {
-        id: generateId(),
+      setMessages((m) => [...m, {
+        id: uid(),
         role: 'assistant',
-        content: assistantContent,
+        content,
         timestamp: new Date(),
-      };
-
-      setMessages((prev) => [...prev, assistantMessage]);
-    } catch (error) {
-      console.error('Error sending message:', error);
-      let errorContent = 'Sorry, there was an error processing your request.';
-      
-      if (error instanceof Error) {
-        errorContent += ` Error: ${error.message}`;
-      }
-      
-      const errorMessage: Message = {
-        id: generateId(),
+      }]);
+    } catch (err) {
+      console.error('Failed to send:', err);
+      setMessages((m) => [...m, {
+        id: uid(),
         role: 'assistant',
-        content: errorContent,
+        content: err instanceof Error ? `Error: ${err.message}` : 'Something went wrong',
         timestamp: new Date(),
-      };
-      setMessages((prev) => [...prev, errorMessage]);
+      }]);
     } finally {
-      setIsLoading(false);
+      setLoading(false);
     }
   };
 
-  const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
+  const onKeyDown = (e: React.KeyboardEvent) => {
     if (e.key === 'Enter' && !e.shiftKey) {
       e.preventDefault();
-      sendMessage();
+      send();
     }
-  };
-
-  const clearChat = () => {
-    setMessages([]);
   };
 
   return (
-    <div className="app-container">
-      <Navbar className="chat-navbar">
+    <div className="app">
+      <Navbar className="nav">
         <NavbarGroup align={Alignment.LEFT}>
-          <Icon icon="chat" className="navbar-icon" />
-          <NavbarHeading>LLM Chat</NavbarHeading>
+          <Icon icon="chat" className="nav-icon" />
+          <NavbarHeading>Chat</NavbarHeading>
         </NavbarGroup>
         <NavbarGroup align={Alignment.RIGHT}>
-          <Tag minimal className="model-tag">{MODEL}</Tag>
+          <Tag minimal className="tag">{MODEL}</Tag>
           {messages.length > 0 && (
-            <Button
-              icon="trash"
-              minimal
-              onClick={clearChat}
-              text="Clear"
-            />
+            <Button icon="trash" minimal onClick={() => setMessages([])} text="Clear" />
           )}
         </NavbarGroup>
       </Navbar>
 
-      <div className="chat-container">
+      <div className="messages">
         {messages.length === 0 ? (
           <NonIdealState
             icon="chat"
-            title="Start a conversation"
-            description="Type a message below to begin chatting with the AI assistant."
+            title="Start chatting"
+            description="Type a message below to begin."
           />
         ) : (
-          <div className="messages-container">
-            {messages.map((message) => (
-              <Card
-                key={message.id}
-                className={`message-card ${message.role}`}
-                elevation={1}
-              >
-                <div className="message-header">
-                  <H6 className="message-role">
-                    <Icon
-                      icon={message.role === 'user' ? 'user' : 'predictive-analysis'}
-                      className="role-icon"
-                    />
-                    {message.role === 'user' ? 'You' : 'Assistant'}
+          <div className="message-list">
+            {messages.map((m) => (
+              <Card key={m.id} className={`bubble ${m.role}`} elevation={1}>
+                <div className="header">
+                  <H6 className="author">
+                    <Icon icon={m.role === 'user' ? 'user' : 'predictive-analysis'} />
+                    {m.role === 'user' ? 'You' : 'Assistant'}
                   </H6>
-                  <span className="message-timestamp">
-                    {message.timestamp.toLocaleTimeString()}
-                  </span>
+                  <span className="time">{m.timestamp.toLocaleTimeString()}</span>
                 </div>
-                <div className="message-content">
-                  {message.content.split('\n').map((line, index) => (
-                    <p key={index}>{line || '\u00A0'}</p>
+                <div className="content">
+                  {m.content.split('\n').map((line, i) => (
+                    <p key={i}>{line || '\u00A0'}</p>
                   ))}
                 </div>
               </Card>
             ))}
-            {isLoading && (
-              <Card className="message-card assistant loading" elevation={1}>
+            {loading && (
+              <Card className="bubble assistant loading" elevation={1}>
                 <Spinner size={20} />
               </Card>
             )}
@@ -191,25 +153,24 @@ function App() {
         )}
       </div>
 
-      <div className="input-container">
-        <div className="input-wrapper">
+      <div className="composer">
+        <div className="input-row">
           <TextArea
-            inputRef={textareaRef}
-            value={inputValue}
-            onChange={(e) => setInputValue(e.target.value)}
-            onKeyDown={handleKeyDown}
-            placeholder="Type your message... (Shift+Enter for new line)"
-            className="chat-input"
-            disabled={isLoading}
+            value={input}
+            onChange={(e) => setInput(e.target.value)}
+            onKeyDown={onKeyDown}
+            placeholder="Message..."
+            className="input"
+            disabled={loading}
             fill
           />
           <Button
-            icon={isLoading ? 'refresh' : 'send-message'}
+            icon={loading ? 'refresh' : 'send-message'}
             intent="primary"
-            onClick={sendMessage}
-            disabled={!inputValue.trim() || isLoading}
-            loading={isLoading}
-            className="send-button"
+            onClick={send}
+            disabled={!input.trim() || loading}
+            loading={loading}
+            className="send"
           >
             Send
           </Button>
