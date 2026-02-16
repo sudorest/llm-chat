@@ -1,0 +1,318 @@
+/* Import Blueprint CSS */
+@import '@blueprintjs/core/lib/css/blueprint.css';
+@import '@blueprintjs/icons/lib/css/blueprint-icons.css';
+
+/* Catppuccin Mocha Theme Colors */
+:root {
+  --ctp-rosewater: #f5e0dc;
+  --ctp-flamingo: #f2cdcd;
+  --ctp-pink: #f5c2e7;
+  --ctp-mauve: #cba6f7;
+  --ctp-red: #f38ba8;
+  --ctp-maroon: #eba0ac;
+  --ctp-peach: #fab387;
+  --ctp-yellow: #f9e2af;
+  --ctp-green: #a6e3a1;
+  --ctp-teal: #94e2d5;
+  --ctp-sky: #89dceb;
+  --ctp-sapphire: #74c7ec;
+  --ctp-blue: #89b4fa;
+  --ctp-lavender: #b4befe;
+  --ctp-text: #cdd6f4;
+  --ctp-subtext1: #bac2de;
+  --ctp-subtext0: #a6adc8;
+  --ctp-overlay2: #9399b2;
+  --ctp-overlay1: #7f849c;
+  --ctp-overlay0: #6c7086;
+  --ctp-surface2: #585b70;
+  --ctp-surface1: #45475a;
+  --ctp-surface0: #313244;
+  --ctp-base: #1e1e2e;
+  --ctp-mantle: #181825;
+  --ctp-crust: #11111b;
+}
+
+body {
+  margin: 0;
+  padding: 0;
+  background-color: var(--ctp-crust);
+  color: var(--ctp-text);
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+}
+
+#root {
+  width: 100vw;
+  height: 100vh;
+  overflow: hidden;
+}
+
+.app-container {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  background-color: var(--ctp-crust);
+}
+
+/* Navbar Styling */
+.chat-navbar {
+  background-color: var(--ctp-mantle) !important;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+  padding: 0 20px;
+}
+
+.chat-navbar .bp5-navbar-heading {
+  color: var(--ctp-text);
+  font-size: 1.2rem;
+  font-weight: 600;
+}
+
+.navbar-icon {
+  color: var(--ctp-mauve);
+  margin-right: 8px;
+}
+
+.model-tag {
+  background-color: var(--ctp-surface0) !important;
+  color: var(--ctp-mauve) !important;
+  margin-right: 12px;
+}
+
+/* Chat Container */
+.chat-container {
+  flex: 1;
+  overflow-y: auto;
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+}
+
+.messages-container {
+  max-width: 900px;
+  width: 100%;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+/* Message Cards */
+.message-card {
+  background-color: var(--ctp-surface0) !important;
+  border: 1px solid var(--ctp-surface1) !important;
+  border-radius: 12px !important;
+  padding: 16px !important;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2) !important;
+}
+
+.message-card.user {
+  background-color: var(--ctp-blue) !important;
+  border-color: var(--ctp-sapphire) !important;
+  color: var(--ctp-crust) !important;
+  align-self: flex-end;
+  max-width: 80%;
+}
+
+.message-card.assistant {
+  background-color: var(--ctp-surface0) !important;
+  border-color: var(--ctp-surface1) !important;
+  color: var(--ctp-text) !important;
+  align-self: flex-start;
+  max-width: 80%;
+}
+
+.message-card.loading {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 60px;
+}
+
+.message-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+}
+
+.message-role {
+  margin: 0;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-weight: 600;
+}
+
+.message-card.user .message-role {
+  color: var(--ctp-crust);
+}
+
+.message-card.assistant .message-role {
+  color: var(--ctp-mauve);
+}
+
+.role-icon {
+  margin-right: 4px;
+}
+
+.message-timestamp {
+  font-size: 0.75rem;
+  opacity: 0.7;
+}
+
+.message-card.user .message-timestamp {
+  color: var(--ctp-crust);
+}
+
+.message-card.assistant .message-timestamp {
+  color: var(--ctp-overlay1);
+}
+
+.message-content {
+  line-height: 1.6;
+}
+
+.message-content p {
+  margin: 0 0 8px 0;
+}
+
+.message-content p:last-child {
+  margin-bottom: 0;
+}
+
+.message-card.user .message-content {
+  color: var(--ctp-crust);
+}
+
+.message-card.assistant .message-content {
+  color: var(--ctp-text);
+}
+
+/* Input Container */
+.input-container {
+  background-color: var(--ctp-mantle);
+  border-top: 1px solid var(--ctp-surface0);
+  padding: 16px 20px;
+}
+
+.input-wrapper {
+  max-width: 900px;
+  margin: 0 auto;
+  display: flex;
+  gap: 12px;
+  align-items: flex-end;
+}
+
+.chat-input {
+  flex: 1;
+  background-color: var(--ctp-surface0) !important;
+  border: 1px solid var(--ctp-surface1) !important;
+  border-radius: 12px !important;
+  color: var(--ctp-text) !important;
+  min-height: 56px;
+  max-height: 200px;
+  resize: none;
+  font-size: 1rem;
+  padding: 16px !important;
+}
+
+.chat-input::placeholder {
+  color: var(--ctp-overlay0) !important;
+}
+
+.chat-input:focus {
+  border-color: var(--ctp-mauve) !important;
+  box-shadow: 0 0 0 2px rgba(203, 166, 247, 0.2) !important;
+}
+
+.send-button {
+  height: 56px;
+  padding: 0 24px !important;
+  background-color: var(--ctp-mauve) !important;
+  color: var(--ctp-crust) !important;
+  border: none !important;
+  border-radius: 12px !important;
+  font-weight: 600 !important;
+  font-size: 1rem !important;
+}
+
+.send-button:hover {
+  background-color: var(--ctp-pink) !important;
+}
+
+.send-button:disabled {
+  background-color: var(--ctp-surface1) !important;
+  color: var(--ctp-overlay0) !important;
+}
+
+/* NonIdealState Styling */
+.bp5-non-ideal-state {
+  color: var(--ctp-text);
+}
+
+.bp5-non-ideal-state .bp5-icon {
+  color: var(--ctp-mauve) !important;
+}
+
+.bp5-non-ideal-state-title {
+  color: var(--ctp-text);
+}
+
+.bp5-non-ideal-state-description {
+  color: var(--ctp-subtext0);
+}
+
+/* Scrollbar Styling */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--ctp-crust);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--ctp-surface1);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--ctp-surface2);
+}
+
+/* Button Styling */
+.bp5-button.bp5-minimal {
+  color: var(--ctp-text) !important;
+}
+
+.bp5-button.bp5-minimal:hover {
+  background-color: var(--ctp-surface0) !important;
+  color: var(--ctp-mauve) !important;
+}
+
+/* Tag Styling */
+.bp5-tag.bp5-minimal {
+  background-color: var(--ctp-surface0);
+  color: var(--ctp-text);
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .chat-container {
+    padding: 12px;
+  }
+
+  .message-card.user,
+  .message-card.assistant {
+    max-width: 90%;
+  }
+
+  .input-wrapper {
+    flex-direction: column;
+  }
+
+  .send-button {
+    width: 100%;
+    height: 48px;
+  }
+}
